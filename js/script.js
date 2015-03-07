@@ -129,7 +129,8 @@ function updateChart() {
 
       players.exit()
         .transition()
-        .duration(200);
+        .duration(200)
+        .remove();
 
       players.transition()
         .duration(200)
