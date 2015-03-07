@@ -1,13 +1,6 @@
-$(document).ready(function() {
-	$.getJSON( "js/2014stats.json", function(json){
-		console.log(json);
-	})
-    
-});
-
-var margin = {top: 20, right: 20, bottom: 30, left: 40},
-    width = 960 - margin.left - margin.right,
-    height = 500 - margin.top - margin.bottom;
+var margin = {top: 20, right: 20, bottom: 20, left: 20},
+    width = $(".chart").width() - margin.left - margin.right,
+    height = $(".chart").height() - margin.top - margin.bottom;
 
 var x = d3.scale.ordinal()
     .rangeRoundBands([0, width], .1);
@@ -22,49 +15,136 @@ var xAxis = d3.svg.axis()
 var yAxis = d3.svg.axis()
     .scale(y)
     .orient("left")
-    .ticks(10, "%");
+    .ticks(10)
+    .tickFormat(function(d) {
+      return d;
+    });
 
-var svg = d3.select(".chart").append("svg")
+var svg = d3.select(".chart")
+  .append("svg")
     .attr("width", width + margin.left + margin.right)
     .attr("height", height + margin.top + margin.bottom)
   .append("g")
+    .attr("class", "main-g")
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
+var theData = {};
+
+var currTeam = "SLN"
+
+
 d3.json("js/2014stats.json", function(error, data) {
-console.log(data);
-  x.domain(data.map(function(d) { return d.nameLast; }));
-  y.domain([0, d3.max(data, function(d) { return d.salary/H; })]);
+  console.log(data);
+  console.log(data[5]);
+
+  data.forEach(function(d){
+    d.lastName = d.nameLast;
+    d.hits = +d.H;
+
+    console.log(d.lastName);
+
+    if (!theData[d.teamID]) {
+      theData[d.teamID] = [];
+    }
+
+    theData[d.teamID].push(d);
+
+  });
+
+  x.domain(data.map(function(d) {
+    return d.lastName;
+  }));
+
+  y.domain([0, d3.max(data, function(d) {
+    return d.hits;
+  })]).nice();
+
+  setNav();
+  drawChart();
+  console.log(theData);
+
+ }); 
+
+function setNav() {
+
+  $(".btn").on("click",function(){
+    var val = $(this).attr("val");
+    currTeam = val;
+
+    updateChart();
+
+  });
+
+}
+
+function drawChart() {
 
   svg.append("g")
       .attr("class", "x axis")
       .attr("transform", "translate(0," + height + ")")
-      .call(xAxis);
+      .call(xAxis)
+    .append("text")
+      .attr("class", "label")
+      .attr("x", width)
+      .attr("y", -6)
+      .style("text-anchor", "end")
+      .text("Player");
 
   svg.append("g")
       .attr("class", "y axis")
       .call(yAxis)
     .append("text")
+      .attr("class", "label")
       .attr("transform", "rotate(-90)")
-      .attr("y", 6)
-      .attr("dy", ".71em")
+      .attr("y", 15)
       .style("text-anchor", "end")
-      .text("Frequency");
+      .text("Hits");
 
-  svg.selectAll(".bar")
-      .data(data)
-    .enter().append("rect")
+  updateChart();
+
+}
+  
+function updateChart() {
+
+  var data = theData[currTeam];
+
+  var players = svg.selectAll(".bar")
+    .data(data, function(d) {
+      return d.lastName;
+    })
+
+  
+    players.enter()
+      .append("rect")
       .attr("class", "bar")
-      .attr("x", function(d) { return x(d.nameLast); })
+      .attr("x", function(d) {
+          return x(d.lastName);
+      })
       .attr("width", x.rangeBand())
-      .attr("y", function(d) { return y(d.salary/H); })
-      .attr("height", function(d) { return height - y(d.salary/H); });
+      .attr("y", function(d) {
+        console.log(y(d.hits));
+        return y(d.hits);
+      })
+      .attr("height", function(d) { return height - y(d.hits); });
 
-});
+      players.exit()
+        .transition()
+        .duration(200);
 
-// function type(d) {
-//   d.frequency = +d.frequency;
-//   return d;
-// }
+      players.transition()
+        .duration(200)
+        .attr("x", function(d) {
+          return x(d.lastName);
+      })
+      .attr("width", x.rangeBand())
+      .attr("y", function(d) {
+        console.log(y(d.hits));
+        return y(d.hits);
+      });
+}
+
+
+
 
 
 
