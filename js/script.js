@@ -1,4 +1,4 @@
-var margin = {top: 20, right: 20, bottom: 20, left: 20},
+var margin = {top: 20, right: 20, bottom: 50, left: 20},
     width = $(".chart").width() - margin.left - margin.right,
     height = $(".chart").height() - margin.top - margin.bottom;
 
@@ -39,9 +39,9 @@ d3.json("js/2014stats.json", function(error, data) {
 
   data.forEach(function(d){
     d.lastName = d.nameLast;
+    //d.hits = +d['salary/H'];
     d.hits = +d.H;
 
-    console.log(d.lastName);
 
     if (!theData[d.teamID]) {
       theData[d.teamID] = [];
@@ -94,8 +94,10 @@ function drawChart() {
       .attr("class", "label")
       .attr("transform", "rotate(-90)")
       .attr("y", 15)
-      .style("text-anchor", "end")
-      .text("Hits");
+      .style("text-anchor", "start")
+      .text("Price Per Hit");
+
+
 
   updateChart();
 
@@ -117,7 +119,11 @@ function updateChart() {
   d3.select(".x.axis")
     .transition()
     .duration(200)
-    .call(xAxis);
+    .call(xAxis)
+   .selectAll("text")
+    .style("text-anchor","start")
+    .attr("x", 9)
+    .attr("transform","rotate(90)");
 
   
     players.enter()
@@ -128,10 +134,11 @@ function updateChart() {
       })
       .attr("width", x.rangeBand())
       .attr("y", function(d) {
-        console.log(y(d.hits));
         return y(d.hits);
       })
       .attr("height", function(d) { return height - y(d.hits); });
+
+
 
       players.exit()
         .transition()
@@ -145,7 +152,6 @@ function updateChart() {
       })
       .attr("width", x.rangeBand())
       .attr("y", function(d) {
-        console.log(y(d.hits));
         return y(d.hits);
       });
 
