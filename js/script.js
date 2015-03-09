@@ -53,9 +53,7 @@ d3.json("js/2014stats.json", function(error, data) {
 
  
 
-  y.domain([0, d3.max(data, function(d) {
-    return d.hits;
-  })]).nice();
+
 
   setNav();
   drawChart();
@@ -116,13 +114,16 @@ function updateChart() {
     return d.lastName;
   }));
 
+  y.domain([0, d3.max(data, function(d) {
+    return d.hits;
+  })]).nice();
+
   d3.select(".x.axis")
     .transition()
     .duration(200)
     .call(xAxis)
    .selectAll("text")
     .style("text-anchor","start")
-    .attr("x", 9)
     .attr("transform","rotate(90)");
 
   
