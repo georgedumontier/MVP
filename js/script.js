@@ -51,9 +51,7 @@ d3.json("js/2014stats.json", function(error, data) {
 
   });
 
-  x.domain(data.map(function(d) {
-    return d.lastName;
-  }));
+ 
 
   y.domain([0, d3.max(data, function(d) {
     return d.hits;
@@ -67,12 +65,10 @@ d3.json("js/2014stats.json", function(error, data) {
 
 function setNav() {
 
-  $(".btn").on("click",function(){
-    var val = $(this).attr("val");
+  $(".dropdown").change(function () {
+    var val = this.value;
     currTeam = val;
-
     updateChart();
-
   });
 
 }
@@ -89,6 +85,7 @@ function drawChart() {
       .attr("y", -6)
       .style("text-anchor", "end")
       .text("Player");
+      
 
   svg.append("g")
       .attr("class", "y axis")
@@ -112,6 +109,15 @@ function updateChart() {
     .data(data, function(d) {
       return d.lastName;
     })
+
+  x.domain(data.map(function(d) {
+    return d.lastName;
+  }));
+
+  d3.select(".x.axis")
+    .transition()
+    .duration(200)
+    .call(xAxis);
 
   
     players.enter()
@@ -142,6 +148,7 @@ function updateChart() {
         console.log(y(d.hits));
         return y(d.hits);
       });
+
 }
 
 
