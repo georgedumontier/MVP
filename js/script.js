@@ -1,4 +1,4 @@
-var margin = {top: 20, right: 20, bottom: 50, left: 20},
+var margin = {top: 20, right: 20, bottom: 50, left: 30},
     width = $(".chart").width() - margin.left - margin.right,
     height = $(".chart").height() - margin.top - margin.bottom;
 
@@ -15,10 +15,10 @@ var xAxis = d3.svg.axis()
 var yAxis = d3.svg.axis()
     .scale(y)
     .orient("left")
-    .ticks(10)
-    .tickFormat(function(d) {
-      return d;
-    });
+    .ticks(5);
+    // .tickFormat(function(d) {
+    //   return d;
+    // });
 
 var svg = d3.select(".chart")
   .append("svg")
@@ -39,8 +39,8 @@ d3.json("js/2014stats.json", function(error, data) {
 
   data.forEach(function(d){
     d.lastName = d.nameLast;
-    //d.hits = +d['salary/H'];
-    d.hits = +d.H;
+    d.hits = +d['salary/H'];
+    //d.hits = +d.H;
 
 
     if (!theData[d.teamID]) {
@@ -113,6 +113,7 @@ function updateChart() {
   x.domain(data.map(function(d) {
     return d.lastName;
   }));
+
 
   y.domain([0, d3.max(data, function(d) {
     return d.hits;
